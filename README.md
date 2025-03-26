@@ -41,3 +41,16 @@ Para iniciar aplicacion en produccion que ejecuta node apps/server/dist/main.js
 ## NOTA
 
 Ejecutar siempre los comandos desde la raiz del repositorio
+
+## FLUJO DE COMPORTAMIENTO DE RAMAS
+
+1.
+
+- Desarrollo en feature/(nombre_feature)
+- Creas un PR (Pull request) a develop
+- Mergea cuando se revisa
+
+2.
+
+- Crear PR a main desde develop
+- Merge tras revisiones y validaciones
