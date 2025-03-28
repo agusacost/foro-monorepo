@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Usuario, TipoUsuario, Estado } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -43,6 +48,31 @@ export class UsuarioService {
       data: {
         estado: Estado.INACTIVO,
       },
+    });
+  }
+
+  async updatePassword(id: number, data: UpdatePasswordDto): Promise<Usuario> {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id },
+    });
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      data.newPassword,
+      usuario.password,
+    );
+    if (passwordMatches) {
+      throw new BadRequestException(
+        'La clave no puede ser igual a la anterior',
+      );
+    }
+
+    const hashedPass = await bcrypt.hash(data.newPassword, 10);
+    return this.prisma.usuario.update({
+      where: { id },
+      data: { password: hashedPass },
     });
   }
 }
