@@ -21,8 +21,10 @@ turbo.json: Configuración de Turborepo para gestionar el monorepo.
 
 Desde la raíz del repositorio, ejecuta:
 
+```shell
 bash
 npm install
+```
 
 ## Comandos disponibles
 
