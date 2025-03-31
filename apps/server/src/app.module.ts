@@ -5,6 +5,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UsuarioModule } from './usuario/usuario.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -13,6 +15,11 @@ import { PrismaModule } from './prisma/prisma.module';
     }),
     UsuarioModule,
     PrismaModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(__dirname, '..', '..', '..', '.env'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
