@@ -6,12 +6,16 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { Usuario, TipoUsuario } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { User } from 'src/auth/decorators/user.decorator';
+import { AuthenticatedUser } from 'src/auth/types/authenticatedUser.type';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 type userType = Usuario & { tipoUsuario: TipoUsuario };
 
@@ -24,7 +28,6 @@ export class UsuarioController {
     const usuarios = await this.usuarioService.obtenerTodos();
     return { data: usuarios };
   }
-
   //Endpoint create user
   @Post()
   createUser(@Body() data: CreateUserDto): Promise<Usuario> {
@@ -53,5 +56,12 @@ export class UsuarioController {
     @Body() data: UpdatePasswordDto,
   ): Promise<Usuario> {
     return this.usuarioService.updatePassword(id, data);
+  }
+
+  //endpoint get profile
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@User() user: AuthenticatedUser) {
+    return this.usuarioService.findProfile(user.id);
   }
 }
