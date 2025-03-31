@@ -11,6 +11,7 @@ import { UsuarioService } from './usuario.service';
 import { Usuario, TipoUsuario } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 type userType = Usuario & { tipoUsuario: TipoUsuario };
 
@@ -40,8 +41,17 @@ export class UsuarioController {
   }
 
   //Endpoint to set inactive
-  @Patch(':id/baja')
+  @Patch(':id/inactive')
   setUserInactive(@Param('id', ParseIntPipe) id: number): Promise<Usuario> {
     return this.usuarioService.setInactive(id);
+  }
+
+  //Endpoint for update password
+  @Patch(':id/updatepass')
+  async updatePassword(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdatePasswordDto,
+  ): Promise<Usuario> {
+    return this.usuarioService.updatePassword(id, data);
   }
 }
