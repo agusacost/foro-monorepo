@@ -1,8 +1,89 @@
-@use '../../assets/styles/variables' as *;
+@use '../../assets/styles/index' as *;
 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 3rem;
+  background-color: white;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
 
-body {
-  font-family: $fuente-base;
-  background-color: $color-fondo;
-  color: $color-texto;
+  &__logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+
+    span {
+      font-weight: normal;
+    }
+  }
+
+  &__links {
+    display: flex;
+    gap: 2rem;
+
+    a {
+      text-decoration: none;
+      color: $text-color;
+      font-weight: 500;
+      @include transition;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    @media (max-width: 768px) {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      flex-direction: column;
+      background-color: white;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      display: none;
+
+      &.active {
+        display: flex;
+      }
+    }
+  }
+
+  &__auth {
+    display: flex;
+    gap: 1rem;
+
+    .btn {
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: $border-radius;
+      cursor: pointer;
+      font-weight: 500;
+      color: white;
+      background-color: $primary-color;
+      @include transition;
+
+      &:hover {
+        background-color: $secondary-color;
+      }
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  &__toggle {
+    display: none;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    @media (max-width: 768px) {
+      display: block;
+      color: $primary-color;
+    }
+  }
 }
