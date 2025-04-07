@@ -18,4 +18,7 @@ export class ValidateUserDto {
     message: 'La clave debe contener al menos una letra mayúscula y un número.',
   })
   password: string;
+
+  @IsString()
+  rol: string;
 }
