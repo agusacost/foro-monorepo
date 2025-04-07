@@ -1,13 +1,13 @@
-import LandingLayout from '../layouts/Landing';
+import MainLayout from '../layouts/MainLayout.tsx';
 import Hero from '../components/Landing/Hero';
 import Features from '../components/Landing/Features.tsx';
 
 const Home = () => {
   return (
-    <LandingLayout>
+    <MainLayout>
       <Hero />
       <Features />
-    </LandingLayout>
+    </MainLayout>
   );
 };
 
