@@ -57,6 +57,7 @@ export class UsuarioService {
   async findByMail(mail: string): Promise<Usuario> {
     const user = await this.prisma.usuario.findUnique({
       where: { correo: mail },
+      include: { tipoUsuario: true },
     });
     if (!user) {
       throw new NotFoundException(`Usuario ${mail} no encontrado`);

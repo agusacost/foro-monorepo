@@ -13,9 +13,11 @@ import { Usuario, TipoUsuario } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { User } from 'src/auth/decorators/user.decorator';
-import { AuthenticatedUser } from 'src/auth/types/authenticatedUser.type';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { User } from 'src/common/decorators/user.decorator';
+import { AuthenticatedUser, Role } from 'src/auth/types/authenticatedUser.type';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/common/guards/roles.guard';
+import { Roles } from 'src/common/decorators/role.decorator';
 
 type userType = Usuario & { tipoUsuario: TipoUsuario };
 
@@ -23,6 +25,8 @@ type userType = Usuario & { tipoUsuario: TipoUsuario };
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   @Get()
   async obtenerTodos(): Promise<{ data: userType[] }> {
     const usuarios = await this.usuarioService.obtenerTodos();
