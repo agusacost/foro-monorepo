@@ -1,39 +1,150 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum Estado {
-  ACTIVO 
-  INACTIVO
+  schemas  = ["public", "tema", "universidad", "usuario"]
 }
 
 model TipoUsuario {
-  id           Int      @id @default(autoincrement())
-  descripcion  String   @unique
-  usuarios     Usuario[]
+  id          Int       @id @default(autoincrement())
+  descripcion String    @unique
+  usuarios    Usuario[]
 
   @@map("tipousuario")
+  @@schema("usuario")
 }
 
 model Usuario {
-  id            Int         @id @default(autoincrement())
-  nombre        String
-  correo        String      @unique
-  password      String
-  estado Estado @default(ACTIVO)
-  tipoUsuarioId Int
-  tipoUsuario   TipoUsuario @relation(fields: [tipoUsuarioId], references: [id])
+  id              Int               @id @default(autoincrement())
+  nombre          String
+  correo          String            @unique
+  password        String
+  tipoUsuarioId   Int
+  estado          Estado            @default(ACTIVO)
+  tipoUsuario     TipoUsuario       @relation(fields: [tipoUsuarioId], references: [id])
+  usuario_carrera usuario_carrera[]
 
   @@map("usuario")
+  @@schema("usuario")
+}
+
+model Universidad {
+  id_universidad Int        @id
+  descripcion    String     @db.VarChar(100)
+  facultades     Facultad[]
+
+  @@map("universidad")
+  @@schema("universidad")
+}
+
+model Facultad {
+  id_facultad    Int         @id
+  nombre         String      @db.VarChar(100)
+  descripcion    String?     @db.VarChar(100)
+  estado         Int
+  id_universidad Int
+  carreras       Carrera[]
+  universidad    Universidad @relation(fields: [id_universidad], references: [id_universidad], onDelete: Cascade, onUpdate: NoAction, map: "fk_universidad")
+
+  @@map("facultad")
+  @@schema("universidad")
+}
+
+model Carrera {
+  id_carrera      Int               @id @default(autoincrement())
+  nombre          String            @db.VarChar(100)
+  id_facultad     Int
+  estado          Int
+  facultad        Facultad          @relation(fields: [id_facultad], references: [id_facultad], onDelete: Cascade, onUpdate: NoAction, map: "fk_facultad")
+  usuario_carrera usuario_carrera[]
+
+  @@map("carrera")
+  @@schema("universidad")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model usuario_carrera {
+  id_usuario_carrera Int          @id
+  id_usuario         Int
+  id_carrera         Int
+  estado             Int
+  comentario         comentario[]
+  tema               tema[]
+  voto_tema          voto_tema[]
+  carrera            Carrera      @relation(fields: [id_carrera], references: [id_carrera], onDelete: Cascade, onUpdate: NoAction, map: "fk_carrera")
+  usuario            Usuario      @relation(fields: [id_usuario], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_usuario")
+
+  @@unique([id_usuario, id_carrera], map: "uq_usuario_carrera")
+  @@schema("usuario")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model comentario {
+  id_comentario                             Int             @id @default(autoincrement())
+  contenido                                 String
+  fecha                                     DateTime        @default(now()) @db.Timestamp(6)
+  id_tema                                   Int
+  id_comentario_padre                       Int?
+  id_usuario_carrera                        Int
+  estado                                    Int
+  tema_comentario_id_comentario_padreTotema tema?           @relation("comentario_id_comentario_padreTotema", fields: [id_comentario_padre], references: [id_tema], onDelete: Cascade, onUpdate: NoAction, map: "fk_comentario_padre")
+  usuario_carrera                           usuario_carrera @relation(fields: [id_usuario_carrera], references: [id_usuario_carrera], onDelete: Cascade, onUpdate: NoAction, map: "fk_comentario_usuario_carrera")
+  tema_comentario_id_temaTotema             tema            @relation("comentario_id_temaTotema", fields: [id_tema], references: [id_tema], onDelete: Cascade, onUpdate: NoAction, map: "fk_tema")
+
+  @@schema("tema")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model tema {
+  id_tema                                         Int             @id @default(autoincrement())
+  titulo                                          String          @db.VarChar(255)
+  contenido                                       String
+  fecha_publicacion                               DateTime?       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  id_tema_categoria                               Int
+  visitas                                         Int             @default(0)
+  estado                                          Int
+  id_usuario_carrera                              Int
+  comentario_comentario_id_comentario_padreTotema comentario[]    @relation("comentario_id_comentario_padreTotema")
+  comentario_comentario_id_temaTotema             comentario[]    @relation("comentario_id_temaTotema")
+  tema_categoria                                  tema_categoria  @relation(fields: [id_tema_categoria], references: [id_tema_categoria], onDelete: Cascade, onUpdate: NoAction, map: "fk_tema_categoria")
+  usuario_carrera                                 usuario_carrera @relation(fields: [id_usuario_carrera], references: [id_usuario_carrera], onDelete: Cascade, onUpdate: NoAction, map: "fk_usuario_carrera")
+  voto_tema                                       voto_tema[]
+
+  @@schema("tema")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model tema_categoria {
+  id_tema_categoria Int    @id
+  descripcion       String @db.VarChar(100)
+  estado            Int
+  tema              tema[]
+
+  @@schema("tema")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model voto_tema {
+  id_voto            Int             @id @default(autoincrement())
+  voto_valor         Int?            @default(0)
+  id_tema            Int
+  id_usuario_carrera Int
+  fecha_voto         DateTime        @default(now()) @db.Timestamp(6)
+  updated_at         DateTime        @default(now()) @db.Timestamp(6)
+  tema               tema            @relation(fields: [id_tema], references: [id_tema], onDelete: Cascade, onUpdate: NoAction, map: "fk_voto_tema")
+  usuario_carrera    usuario_carrera @relation(fields: [id_usuario_carrera], references: [id_usuario_carrera], onDelete: Cascade, onUpdate: NoAction, map: "fk_voto_usuario_carrera")
+
+  @@unique([id_usuario_carrera, id_tema], map: "uq_voto_usuario_tema")
+  @@schema("tema")
+}
+
+enum Estado {
+  ACTIVO
+  INACTIVO
+
+  @@schema("public")
 }
