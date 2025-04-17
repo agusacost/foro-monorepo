@@ -4,10 +4,10 @@ import Features from '../components/Landing/Features.tsx';
 
 const Home = () => {
   return (
-    <MainLayout>
+    <>
       <Hero />
       <Features />
-    </MainLayout>
+      </>
   );
 };
 
